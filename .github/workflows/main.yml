@@ -1,0 +1,41 @@
+name: Compare Book Storage
+
+on:
+  workflow_dispatch: # Run manually
+
+jobs:
+  compare-books:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout VoprosBotNEW
+        uses: actions/checkout@v4
+        with:
+          repository: Chess75/VoprosBotNEW
+          path: VoprosBotNEW
+
+      - name: Checkout 1stMYBnew
+        uses: actions/checkout@v4
+        with:
+          repository: Chess75/1stMYBnew
+          path: 1stMYBnew
+
+      - name: Compare Book Sizes
+        run: |
+          echo "📊 Book Sizes in MB"
+          echo ""
+          
+          for BOOK in Book1.bin Book2.bin Book3.bin; do
+            SIZE_V=$(du -m VoprosBotNEW/engines/$BOOK | cut -f1)
+            SIZE_M=$(du -m 1stMYBnew/engines/$BOOK | cut -f1)
+            echo "$BOOK:"
+            echo "  VoprosBotNEW: ${SIZE_V} MB"
+            echo "  1stMYBnew:    ${SIZE_M} MB"
+            if [ $SIZE_V -gt $SIZE_M ]; then
+              echo "  ➡️ VoprosBotNEW has the larger $BOOK"
+            elif [ $SIZE_V -lt $SIZE_M ]; then
+              echo "  ➡️ 1stMYBnew has the larger $BOOK"
+            else
+              echo "  ➡️ Both are the same size"
+            fi
+            echo ""
+          done
